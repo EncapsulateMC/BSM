@@ -1,4 +1,4 @@
-package net.bsm.models
+package net.bsm.map
 
 import java.io.Serializable
 
