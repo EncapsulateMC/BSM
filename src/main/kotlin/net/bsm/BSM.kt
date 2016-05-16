@@ -38,7 +38,7 @@ class BSM {
                 val byteMap = remapper.remap()
                 val zipFile = ZipFile(File(outputFileName))
                 for (entry in byteMap.entries) {
-                    val outputFile = File(tempDir, entry.key)
+                    val outputFile = File(tempDir, "${entry.key}.class")
                     FileUtils.writeByteArrayToFile(outputFile, entry.value)
                 }
 
@@ -47,8 +47,22 @@ class BSM {
                 zipFile.addFolder(tempDir, zipParameters)
                 return
             }
+            if (args[0].equals("srg", true)) {
+                // java -jar BSM.jar srg <srgLoc> <outputSrgName>
+                if (args.size < 3) {
+                    println("Insufficent arguments!")
+                    println("Usage: java -jar BSM.jar srg <srgLoc> <outputSrgName>")
+                    return
+                }
+                val srgLoc = File(args[1])
+                val outputFileName = args[2]
+                val outputFile = File(System.getProperty("user.dir"), outputFileName)
+                val srgConverter = SRGConverter(srgLoc)
+                srgConverter.convertTo(outputFile)
+                return
+            }
             println("Invalid option!")
-            println("Available options: 'apply'")
+            println("Available options: 'apply', 'srg'")
         }
     }
 }
