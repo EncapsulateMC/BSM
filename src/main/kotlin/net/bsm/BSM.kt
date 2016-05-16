@@ -1,8 +1,7 @@
 package net.bsm
 
 import net.bsm.asm.JarRemapper
-import net.bsm.map.BinaryMapping
-import net.bsm.map.MappingCompiler
+import net.bsm.map.*
 import net.lingala.zip4j.core.ZipFile
 import net.lingala.zip4j.model.ZipParameters
 import org.apache.commons.io.FileUtils
@@ -61,8 +60,55 @@ class BSM {
                 srgConverter.convertTo(outputFile)
                 return
             }
+            if (args[0].equals("reverse", true)) {
+                // java -jar BSM.jar reverse <oriBSM> <newBSMFileName>
+                if (args.size < 3) {
+                    println("Insufficent arguments!")
+                    println("Usage: java -jar BSM.jar reverse <oriBSM> <newBSMFileName>")
+                    return
+                }
+                val bsmFile = File(args[1])
+                val compiler = MappingCompiler(bsmFile, null)
+                val model = compiler.decompile()
+
+                val classModels: MutableList<BinaryClass> = mutableListOf()
+                for (classModel in model.classModels) {
+                    classModels.add(BinaryClass(classModel.deobf, classModel.obf))
+                }
+
+                val fieldModels: MutableList<BinaryField> = mutableListOf()
+                for (fieldModel in model.fieldModels) {
+                    fieldModels.add(BinaryField(fieldModel.originClass, fieldModel.newName, fieldModel.oriName))
+                }
+
+                val methodModels: MutableList<BinaryMethod> = mutableListOf()
+                for (methodModel in model.methodModels) {
+                    methodModels.add(BinaryMethod(remapClassName(model.classModels, methodModel.originClass), methodModel.newName, remapDescriptor(model.classModels, methodModel.oriDesc), methodModel.oriName))
+                }
+
+                val outputBSM = File(System.getProperty("user.dir"), args[2])
+                val resultCompiler = MappingCompiler(outputBSM, BinaryMapping(classModels.toTypedArray(), methodModels.toTypedArray(), fieldModels.toTypedArray()))
+                resultCompiler.compile()
+                return
+            }
             println("Invalid option!")
-            println("Available options: 'apply', 'srg'")
+            println("Available options: 'apply', 'srg', 'reverse'")
+        }
+
+        @JvmStatic fun remapDescriptor(classModels: Array<BinaryClass>, descriptor: String) : String {
+            var mutableDescriptor = descriptor
+            for (classModel in classModels) {
+                mutableDescriptor = mutableDescriptor.replace(classModel.obf, classModel.deobf)
+            }
+            return mutableDescriptor
+        }
+
+        @JvmStatic fun remapClassName(classModels: Array<BinaryClass>, className: String) : String {
+            var mutableName = className
+            for (classModel in classModels) {
+                mutableName = mutableName.replace(classModel.obf, classModel.deobf)
+            }
+            return mutableName
         }
     }
 }
