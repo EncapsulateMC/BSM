@@ -14,19 +14,19 @@ class SRGConverter(val srgFile: File) {
         val classMap = getClassMap(container)
         val classList: MutableList<BinaryClass> = mutableListOf()
         for (entry in classMap.entries) {
-            println("Processing SRG mapping: CLASS ${entry.key} to CLASS ${entry.value}...")
+            //println("Processing SRG mapping: CLASS ${entry.key} to CLASS ${entry.value}...")
             classList.add(BinaryClass(entry.key, entry.value))
         }
         val fieldMap = getFieldMap(container)
         val fieldList: MutableList<BinaryField> = mutableListOf()
         for (entry in fieldMap.entries) {
-            println("Processing SRG mapping: FIELD ${entry.key.owner}/${entry.key.name} to FIELD ${entry.value.owner}/${entry.value.name}...")
+            //println("Processing SRG mapping: FIELD ${entry.key.owner}/${entry.key.name} to FIELD ${entry.value.owner}/${entry.value.name}...")
             fieldList.add(BinaryField(entry.key.owner, entry.key.name, entry.value.name))
         }
         val methodMap = getMethodMap(container)
         val methodList: MutableList<BinaryMethod> = mutableListOf()
         for (entry in methodMap.entries) {
-            println("Processing SRG mapping: METHOD ${entry.key.owner}/${entry.key.simpleName} to METHOD ${entry.value.owner}/${entry.value.simpleName}...")
+            //println("Processing SRG mapping: METHOD ${entry.key.owner}/${entry.key.simpleName} to METHOD ${entry.value.owner}/${entry.value.simpleName}...")
             methodList.add(BinaryMethod(entry.key.owner, entry.key.simpleName, entry.key.desc, entry.value.simpleName))
         }
         val mapping = BinaryMapping(classList.toTypedArray(), methodList.toTypedArray(), fieldList.toTypedArray())
